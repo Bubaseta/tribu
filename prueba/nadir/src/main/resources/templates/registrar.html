@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 3px;
+            background-color: #007bff;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="register-form" action="/auth/registro" method="POST">
+        <h2>Registro de usuario</h2>
+        <input type="text" id="nombre" name="nombre" placeholder="Nombre de usuario" required>
+        <input type="text" id="apellido" name="apellido" placeholder="Apellido" required>
+        <input type="text" id="username" name="username" placeholder="Dirección de Email" required>
+        <input type="text" id="pais" name="pais" placeholder="País" required>
+        <input type="text" id="telefono" name="telefono" placeholder="Teléfono" required>
+        <input type="password" id="password" name="password" placeholder="Contraseña" required>
+        <input type="password" id="password2" name="password2" placeholder="Repetir contraseña" required>
+        <input type="submit" value="¡Registrar ya!">
+    </form>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var nombre = document.getElementById('nombre').value;
+            var apellido = document.getElementById('apellido').value;
+            var username = document.getElementById('username').value;
+            var pais = document.getElementById('pais').value;
+            var telefono = document.getElementById('telefono').value;
+            var password = document.getElementById('password').value;
+            var password2 = document.getElementById('password2').value;
+
+            // Verifica que las contraseñas coincidan
+            if (password !== password2) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            var registerRequest = {
+                nombre: nombre,
+                apellido: apellido,
+                username: username,
+                pais: pais,
+                telefono: telefono,
+                password: password
+            };
+
+            var jsonData = JSON.stringify(registerRequest);
+
+            fetch('http://localhost:8080/auth/registro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Error en el registro');
+                    }
+                })
+                .then(data => {
+                    console.log('Registro exitoso:', data);
+                    alert('Registro exitoso');
+                    // Redirigir o limpiar el formulario si es necesario
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al registrar. Por favor, inténtalo de nuevo.');
+                });
+        });
+    </script>
+</body>
+
+</html>

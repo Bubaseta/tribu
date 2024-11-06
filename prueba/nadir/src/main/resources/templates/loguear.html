@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 3px;
+            background-color: #007bff;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="login-form" action="/auth/logueo" method="post">
+        <h2>Iniciar sesión</h2>
+        <input type="text" id="username" name="username" placeholder="Nombre de usuario" required>
+        <input type="password" id="password" name="password" placeholder="Contraseña" required>
+        <input type="submit" value="Iniciar sesión">
+    </form>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            var loginRequest = {
+                username: username,
+                password: password
+            };
+
+            var jsonData = JSON.stringify(loginRequest);
+
+            fetch('http://localhost:8080/auth/logueo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Autenticación fallida');
+                    }
+                })
+                .then(data => {
+                    var token = data.token;
+                    if (token) {
+                        localStorage.setItem('tribu', token);
+                        
+                        // Enviar el token en la cabecera y redirigir
+                        const url = "http://localhost:8080/api/send-pago";
+                        const requestOptions = {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        };
+                        fetch(url, requestOptions)
+                            .then(response => {
+                                if (response.ok) {
+                                    // Redirigir si la solicitud fue exitosa
+                                    window.location.href = url;
+                                } else {
+                                    throw new Error('Error en la redirección');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error en la redirección. Por favor, inténtalo de nuevo.');
+                            });
+                    } else {
+                        throw new Error('Token no recibido');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al iniciar sesión. Por favor, inténtalo de nuevo.');
+                });
+        });
+
+    </script>
+</body>
+
+</html>

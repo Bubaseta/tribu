@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirigir con Botón</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Redirigir con Botón</h1>
+    <button onclick="redirectToUrl()">Ir a Otra URL</button>
+
+    <script>
+        function redirectToUrl() {
+            // Captura el token desde localStorage
+            var token = localStorage.getItem('tribu');
+            
+            if (token) {
+                // Realiza una solicitud GET para acceder a la ruta protegida
+                fetch('http://localhost:8080/api/send-pago', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return window.location.href = 'http://localhost:8080/api/send-pago';  
+                    } else {
+                        throw new Error('Acceso denegado o token inválido');
+                    }
+                })
+
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al acceder a la página protegida. Por favor, inicia sesión.');
+                });
+            } else {
+                alert('No estás autenticado. Por favor, inicia sesión.');
+                window.location.href = 'http://localhost:8080/auth/login';
+            }
+        }
+    </script>
+</body>
+</html>
